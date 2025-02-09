@@ -1,4 +1,4 @@
-s## Amylase-UI
+## Amylase-UI
 
 Windows 11 风格的 Vue 组件库，基本符合 [Fluent 2 Design System][1]，样式以移植 [Fluent UI React v9][2] 为主，部分设计参考 [Fluent UI Web Components][3]
 
