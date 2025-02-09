@@ -22,6 +22,9 @@
   "exports": {
     ".": {}
   },
+  "workspaces": [
+    "docs/*"
+  ],
   "scripts": {
     "dev": "pnpm -C docs run dev",
     "build:doc": "pnpm -C docs run build",
