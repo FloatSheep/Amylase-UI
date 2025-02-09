@@ -67,6 +67,7 @@ export const getDefaultLightTheme = (): ThemeColor => ({
     dividerDefault: '#00000014',
     focusOuter: '#000000e2',
     focusInner: '#ffffff',
+    accessibleNeutral: '#616161',
   },
   shadow: {
     0: 'none',

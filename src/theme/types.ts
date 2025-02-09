@@ -132,6 +132,8 @@ export interface ThemeColor {
     focusOuter: string
     /** 用于分隔线和图形线。主题反转；光明中的黑暗主题和黑暗中的光明主题。 */
     focusInner: string
+    /** 用于可访问控件的笔划，例如：滑块轨道 */
+    accessibleNeutral: string
   }
   shadow: {
     0: string

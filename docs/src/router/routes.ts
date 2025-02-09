@@ -88,6 +88,22 @@ export const routes: RouteRecordRaw[] = [
         },
         component: () => import('../pages/PageDropdown.vue'),
       },
+      {
+        path: '/popup',
+        name: 'Popup',
+        meta: {
+          title: '弹出层',
+        },
+        component: () => import('../pages/PagePopup.vue'),
+      },
+      {
+        path: '/divide',
+        name: 'Divide',
+        meta: {
+          title: '分隔线',
+        },
+        component: () => import('../pages/PageDivide.vue'),
+      },
     ],
   },
 ]

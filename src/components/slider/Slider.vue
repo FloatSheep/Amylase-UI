@@ -4,6 +4,7 @@ import type { Observable } from 'rxjs'
 import { filter, fromEvent, map, switchMap, takeUntil } from 'rxjs'
 import { fromEvent as fromEventRef, useSubscription } from '@vueuse/rxjs'
 import Flatten from '@flatten-js/core'
+import { getDefaultLightTheme } from '@/theme'
 
 interface SliderProps {
   modelValue?: number
@@ -24,8 +25,8 @@ const props = withDefaults(defineProps<SliderProps>(), {
   step: 1,
   width: '120px',
   trackHeight: 4,
-  trackColor: '#005FB8',
-  thumbColor: '#005FB8',
+  trackColor: getDefaultLightTheme().stroke.accessibleNeutral,
+  thumbColor: 'rgb(0, 95, 184)',
 })
 
 const emits = defineEmits<{
@@ -51,7 +52,7 @@ const internalBind = ref(0)
 
 /** 内部双绑值 */
 const bindValue = computed({
-  get: () => props.modelValue === undefined ? internalBind.value : props.modelValue,
+  get: () => (props.modelValue === undefined ? internalBind.value : props.modelValue),
   set: (v) => {
     if (props.modelValue === undefined) {
       internalBind.value = v
@@ -70,10 +71,7 @@ const ratio = computed(() => (bindValue.value - props.min) / range.value)
 const getHorizontalCentralAxis = (a: HTMLElement, b: HTMLElement) => {
   const shapeA = a.getBoundingClientRect()
   const shapeB = b.getBoundingClientRect()
-  return Flatten.vector(
-    Flatten.point(shapeA.x, shapeA.y),
-    Flatten.point(shapeB.x, shapeB.y),
-  )
+  return Flatten.vector(Flatten.point(shapeA.x, shapeA.y), Flatten.point(shapeB.x, shapeB.y))
 }
 
 /** 获取投影长度，处理一下矢量长度为 0 时的特殊情况 */
@@ -93,7 +91,10 @@ const clamp = (min: number, max: number, value: number) => {
   return Math.max(min, Math.min(max, value))
 }
 
-const pointerdown = fromEventRef(thumbRef as Ref<HTMLElement>, 'pointerdown') as Observable<PointerEvent>
+const pointerdown = fromEventRef(
+  thumbRef as Ref<HTMLElement>,
+  'pointerdown',
+) as Observable<PointerEvent>
 const pointermove = fromEvent<PointerEvent>(window, 'pointermove')
 const pointerup = fromEvent(window, 'pointerup')
 
@@ -117,13 +118,15 @@ const slideObservable = pointerdown.pipe(
   }),
 )
 
-useSubscription(slideObservable.subscribe(({ startValue, moveLen }) => {
-  // 先算出移动距离占可滑动长度的比
-  const lenRatio = moveLen / slideLength.value
-  // 再根据区间长度和上下限计算应该得到的数值
-  const result = clamp(props.min, props.max, startValue + lenRatio * range.value)
-  bindValue.value = Math.floor(result / props.step) * props.step
-}))
+useSubscription(
+  slideObservable.subscribe(({ startValue, moveLen }) => {
+    // 先算出移动距离占可滑动长度的比
+    const lenRatio = moveLen / slideLength.value
+    // 再根据区间长度和上下限计算应该得到的数值
+    const result = clamp(props.min, props.max, startValue + lenRatio * range.value)
+    bindValue.value = Math.floor(result / props.step) * props.step
+  }),
+)
 </script>
 
 <template>
@@ -133,6 +136,10 @@ useSubscription(slideObservable.subscribe(({ startValue, moveLen }) => {
     v-bind="$attrs"
     :class="{ disabled }"
     :style="{
+      '--thumb-bg': `${props.thumbColor}`,
+      '--thumb-white': `${getDefaultLightTheme().fill.ctrlInputActive}`,
+      '--thumb-white-border': `#d1d1d1`,
+      '--track-bg': `${trackColor}`,
       '--slider-width': `${containerW}px`,
       '--slider-track-height': `${trackHeight / 2}px`,
       width,
@@ -143,43 +150,67 @@ useSubscription(slideObservable.subscribe(({ startValue, moveLen }) => {
     <!-- 尾部定位元素 -->
     <div ref="tailRef" class="positioning-element positioning-element__tail" />
     <!-- 滑块元素 -->
-    <div ref="thumbRef" class="thumb" :style="{ transform: `translate(${ratio * slideLength}px, 0)` }" />
+    <div
+      ref="thumbRef"
+      class="thumb"
+      :style="{ transform: `translate(${ratio * slideLength - thumbW / 2}px, 0)` }"
+    />
     <!-- 轨道应该基于容器元素本身来实现，滑块相对于容器元素进行定位  -->
+    <div class="track" :style="{ height: `${trackHeight}px`, background: 'var(--track-bg)' }" />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .win-slider {
-  --thumb-bg: linear-gradient(to bottom, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.16));
   --thumb-cursor: pointer;
   --thumb-radius: 4px;
 
-  border: 1px solid red;
   width: v-bind(width);
   height: 24px;
   position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
 
   &.disabled {
     --thumb-cursor: not-allowed;
-    --thumb-ng: linear-gradient(to bottom, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.07));
+    --thumb-bg: #bdbdbd !important;
+    --track-bg: #bdbdbd !important;
+  }
+
+  .track {
+    position: relative;
+    transform: translateY(calc(50% - var(--slider-track-height)));
+    z-index: 1;
+    border: solid 1px transparent;
+    border-radius: 4px;
   }
 
   .thumb {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     position: absolute;
     left: 0;
-    top: 0;
-    background: var(--thumb-bg);
-    border-radius: 100%;
+    background: var(--thumb-white);
+    border-radius: 50%;
     user-select: none;
     cursor: var(--thumb-cursor);
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--thumb-white-border);
   }
+
   .thumb::before {
     content: '';
+    width: 12px; // 小圆的宽度
+    height: 12px; // 小圆的高度
+    background: var(--thumb-bg); // 小圆的背景颜色
+    border-radius: 50%; // 小圆的圆角
     position: absolute;
-    width: 100%;
   }
+
   .thumb:not(.disabled) {
     &:hover {
       --thumb-radius: 5px;

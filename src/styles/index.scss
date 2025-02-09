@@ -1,2 +1,30 @@
 @import "./transition/index.scss";
 @import "./font.scss";
+
+:root {
+  --amylase-color-primary-brand-hover: #115ea3;
+  --amylase-duration-main: 100ms;
+  --amylase-timing-function-main: cubic-bezier(0.33, 0, 0.67, 1);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) translateX(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+}
+
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) translateX(-50%);
+  }
+}
