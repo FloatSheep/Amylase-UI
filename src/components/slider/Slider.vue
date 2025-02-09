@@ -153,7 +153,7 @@ useSubscription(
     <div
       ref="thumbRef"
       class="thumb"
-      :style="{ transform: `translate(${ratio * slideLength - thumbW / 2}px, 0)` }"
+      :style="{ transform: `translate(${ratio * slideLength}px, 0)` }"
     />
     <!-- 轨道应该基于容器元素本身来实现，滑块相对于容器元素进行定位  -->
     <div class="track" :style="{ height: `${trackHeight}px`, background: 'var(--track-bg)' }" />
